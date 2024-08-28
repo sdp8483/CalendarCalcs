@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.28)
 project(CalendarCalcsPROJECT CXX)
 
 if(NOT PROJECT_IS_TOP_LEVEL)
-    add_subdirectory(CalendarCalcs)
+    add_subdirectory(src)
 else()
     # unit testing
     include(CTest)
