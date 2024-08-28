@@ -17,7 +17,7 @@ I prefer adding to my projects as a git submodule. Run the below command in the 
 git submodule add https://github.com/sdp8483/CalendarCalcs.git SUBDIR/MORE_SUBDIR
 ```
 
-Edit the root `CMakeLists.txt` or the `CMakeLists.txt` in the `lib` directory with `add_subdirectory(CalendarCalcs)`
+Edit the root `CMakeLists.txt` or the `CMakeLists.txt` in the `lib` directory with `add_subdirectory(CalendarCalcs)` also `target_link_libraries(${PROJECT_NAME} CalendarCalcs)`
 
 # Unit Testing
 To unit test first run `cmake` in a build directory. Then the library must be built before `ctest` can be run:
