@@ -212,8 +212,8 @@ CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz
 bool CalendarCalcs::_month_is_valid(uint8_t month) {
     // month value cannot be less then January
     if (month < CalendarCalcs::MONTH::JANUARY) {
-        calcalc_log_ln("Month %d is not a valid month", month);
-        calcalc_log_ln("Valid months are 1 to 12");
+        calcalc_log("Month %d is not a valid month\r\n", month);
+        calcalc_log("Valid months are 1 to 12\r\n");
 
         return false;
     }
@@ -221,8 +221,8 @@ bool CalendarCalcs::_month_is_valid(uint8_t month) {
 
     // month value cannot be greater then December
     if (month > CalendarCalcs::MONTH::DECEMBER) {
-        calcalc_log_ln("Month %d is not a valid month", month);
-        calcalc_log_ln("Valid months are 1 to 12");
+        calcalc_log("Month %d is not a valid month\r\n", month);
+        calcalc_log("Valid months are 1 to 12\r\n");
 
         return false;
     }
@@ -295,7 +295,7 @@ int8_t CalendarCalcs::_days_in_month(uint8_t year, uint8_t month) {
 bool CalendarCalcs::_day_is_valid(uint8_t year, uint8_t month, uint8_t day) {
     // day cannot be zero
     if (day == 0) {
-        calcalc_log_ln("Day is zero");
+        calcalc_log("Day is zero\r\n");
 
         return false;
     }
@@ -308,8 +308,8 @@ bool CalendarCalcs::_day_is_valid(uint8_t year, uint8_t month, uint8_t day) {
     int8_t max_days = _days_in_month(year, month);
 
     if (day > max_days) {
-        calcalc_log_ln("Day %d is not a valid day for month %d", day, month);
-        calcalc_log_ln("Valid days are 1 to %d", max_days);
+        calcalc_log("Day %d is not a valid day for month %d\r\n", day, month);
+        calcalc_log("Valid days are 1 to %d\r\n", max_days);
 
         return false;
     }

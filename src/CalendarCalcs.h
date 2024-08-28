@@ -15,9 +15,7 @@
 /* Macros -------------------------------------------------------------------- */
 #if CALENDARCALCS_LOG_MESSAGES
 #define calcalc_log(__info,...)         printf("CalendarCalcs: " __info,##__VA_ARGS__)
-#define calcalc_log_ln(__info,...)      printf("CalendarCalcs: " __info,##__VA_ARGS__, "\r\n")
 #else
-#define calcalc_log(__info,...)
 #define calcalc_log(__info,...)
 #endif
 
