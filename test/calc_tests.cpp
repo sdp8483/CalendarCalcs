@@ -25,3 +25,17 @@ void DaylightSavingsTest(CalendarCalcs::TIMEZONE tz, uint16_t year,
         std::exit(1);
     }
 }
+
+/* Perform date validation test on specified date */
+void DateIsValidTest(uint16_t year, uint8_t month, uint8_t day, bool expected_result) {
+    if (expected_result != ccalcs.date_is_valid(year, month, day)) {
+        std::exit(1);
+    }
+}
+
+/* Perform time validation test on specified time */
+void TimeIsValidTest(uint8_t hour, uint8_t minute, uint8_t second, bool expected_result) {
+    if (expected_result != ccalcs.time_is_valid(hour, minute, second)) {
+        std::exit(1);
+    }
+}

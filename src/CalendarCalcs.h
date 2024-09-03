@@ -30,6 +30,16 @@
 /* Class --------------------------------------------------------------------- */
 class CalendarCalcs {
     public:
+        struct datetime {
+            uint16_t year;
+            uint8_t month;
+            uint8_t day;
+            uint8_t hour;
+            uint8_t minute;
+            uint8_t second;
+            uint8_t day_of_week;
+        };
+
         enum TIMEZONE {
             TZ_ERROR        = CALENDARCALCS_ERROR,
             EST             = 0,        // eastern standard time
@@ -79,13 +89,22 @@ class CalendarCalcs {
             ACTIVE          = 1,
         };
 
-        // todo use ints so we can go negative
+        enum CalendarCalcs_Error {
+            NONE,
+            DATE_INVALID,
+            TIME_INVALID,
+        };
 
         bool is_leap_year(uint16_t year);
         CalendarCalcs::DAY_OF_WEEK day_of_week(uint16_t year, uint8_t month, uint8_t day);
         CalendarCalcs::DST is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, 
                                                uint8_t month, uint8_t day, uint8_t utc_hour);
         
+        bool date_is_valid(uint16_t year, uint8_t month, uint8_t day);
+        bool time_is_valid(uint8_t hour, uint8_t minute, uint8_t second);
+
+        CalendarCalcs::CalendarCalcs_Error to_local_time(CalendarCalcs::TIMEZONE tz, CalendarCalcs::datetime *dt);
+
     private:
         bool _month_is_valid(uint8_t month);
         int8_t _days_in_month(uint8_t year, uint8_t month);

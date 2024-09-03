@@ -21,6 +21,8 @@ void DayOfWeekTest(uint16_t year, uint8_t month, uint8_t day, CalendarCalcs::DAY
 void DaylightSavingsTest(CalendarCalcs::TIMEZONE tz, uint16_t year, 
                          uint8_t month, uint8_t day, uint8_t utc_hour,
                          CalendarCalcs::DST expected_result);
+void DateIsValidTest(uint16_t year, uint8_t month, uint8_t day, bool expected_result);
+void TimeIsValidTest(uint8_t hour, uint8_t minute, uint8_t second, bool expected_result);
 
 int main(int argc, char *argv[]) {
     /* Leap Year Tests ------------------------------------------------------- */
@@ -102,5 +104,42 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2 || argv[1] == "16") {
         DaylightSavingsTest(CalendarCalcs::TIMEZONE::EST, 2024, 11, 3, 7, CalendarCalcs::DST::INACTIVE);
+    }
+
+    /* Valid Date Tests ------------------------------------------------------ */
+    /* September 3rd, 2024 is a valid date */
+    if (argc < 2 || argv[1] == "17") {
+        DateIsValidTest(2024, 9, 3, true);
+    }
+
+    /* No month greater then 12 */
+    if (argc < 2 || argv[1] == "18") {
+        DateIsValidTest(2024, 15, 21, false);
+    }
+
+    /* September does not have 31 days */
+    if (argc < 2 || argv[1] == "19") {
+        DateIsValidTest(2024, 9, 31, false);
+    }
+
+    /* Valid Time Tests ------------------------------------------------------ */
+    /* 8:14:54 is a valid test */
+    if (argc < 2 || argv[1] == "20") {
+        TimeIsValidTest(8, 14, 54, true);
+    }
+
+    /* no hour >= 24 */
+    if (argc < 2 || argv[1] == "21") {
+        TimeIsValidTest(24, 14, 54, false);
+    }
+
+    /* no minute >= 60 */
+    if (argc < 2 || argv[1] == "22") {
+        TimeIsValidTest(8, 60, 54, false);
+    }
+
+    /* no second >= 60 */
+    if (argc < 2 || argv[1] == "23") {
+        TimeIsValidTest(8, 14, 60, false);
     }
 }

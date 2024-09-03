@@ -27,3 +27,14 @@ add_test(NAME Not_DST_March_10_2024_1am     COMMAND unit_tests 13)
 add_test(NAME Is_DST_March_10_2024_2am      COMMAND unit_tests 14)
 add_test(NAME Is_DST_November_3_2024_1am    COMMAND unit_tests 15)
 add_test(NAME Not_DST_November_2_2024_2am   COMMAND unit_tests 16)
+
+# Date Validation Tests
+add_test(NAME September_3_2024_Is_Valid     COMMAND unit_tests 17)
+add_test(NAME No_Month_Greater_Then_12      COMMAND unit_tests 18)
+add_test(NAME September_31_Is_Not_Valid     COMMAND unit_tests 19)
+
+# Time Validation Tests
+add_test(NAME Time_8:14:54_Is_Valid         COMMAND unit_tests 20)
+add_test(NAME Time_Hour_Is_Not_Valid        COMMAND unit_tests 21)
+add_test(NAME Time_Minute_Is_Not_Valid      COMMAND unit_tests 22)
+add_test(NAME Time_Second_Is_Not_Valid      COMMAND unit_tests 23)

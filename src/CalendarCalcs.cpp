@@ -208,6 +208,66 @@ CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz
     return CalendarCalcs::DST::ACTIVE;
 }
 
+/* determine if a date is valid ---------------------------------------------- */
+bool CalendarCalcs::date_is_valid(uint16_t year, uint8_t month, uint8_t day) {
+    /* is the month valid, not greater then 12 */
+    if (!_month_is_valid(month)) {
+        return false;
+    }
+
+    /* is the number of days correct for the month and year */
+    if (!_day_is_valid(year, month, day)) {
+        return false;
+    }
+
+    return true;
+}
+
+/* determine if a time is valid ---------------------------------------------- */
+bool CalendarCalcs::time_is_valid(uint8_t hour, uint8_t minute, uint8_t second) {
+    /* are there more then 24 hours */
+    if (hour >= 24) {
+        return false;
+    }
+
+    /* are there more then 59 minutes */
+    if (minute >= 60) {
+        return false;
+    }
+
+    /* are there more then 59 seconds */
+    if (second >= 60) {
+        return false;
+    }
+
+    return true;
+}
+
+/* convert UTC datetime to local datetime ------------------------------------ */
+CalendarCalcs::CalendarCalcs_Error CalendarCalcs::to_local_time(CalendarCalcs::TIMEZONE tz, CalendarCalcs::datetime *dt) {
+    /* make sure date is valid */
+    if (!date_is_valid(dt->year, dt->month, dt->day)) {
+        return CalendarCalcs::CalendarCalcs_Error::DATE_INVALID;
+    }
+
+    /* make sure time is valid */
+    if (!time_is_valid(dt->hour, dt->minute, dt->second)) {
+        return CalendarCalcs::CalendarCalcs_Error::TIME_INVALID;
+    }
+
+    /* get timezone offset */
+    int8_t tz_offset = _utc_offset_standard(tz);
+
+    /* adjust for daylight savings time, add 1 hour */
+    if (is_daylight_savings(tz, dt->year, dt->month, dt->day, dt->hour)) {
+        tz_offset += 1;
+    }
+
+    
+
+    return CalendarCalcs::CalendarCalcs_Error::NONE;
+}
+
 /* determine if the month value is valid ------------------------------------- */
 bool CalendarCalcs::_month_is_valid(uint8_t month) {
     // month value cannot be less then January
