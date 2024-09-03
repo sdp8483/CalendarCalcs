@@ -31,13 +31,13 @@
 class CalendarCalcs {
     public:
         struct datetime {
-            uint16_t year;
-            uint8_t month;
-            uint8_t day;
-            uint8_t hour;
-            uint8_t minute;
-            uint8_t second;
-            uint8_t day_of_week;
+            int16_t year;
+            int8_t month;
+            int8_t day;
+            int8_t hour;
+            int8_t minute;
+            int8_t second;
+            int8_t day_of_week;
         };
 
         enum TIMEZONE {
@@ -95,27 +95,28 @@ class CalendarCalcs {
             TIME_INVALID,
         };
 
-        bool is_leap_year(uint16_t year);
-        CalendarCalcs::DAY_OF_WEEK day_of_week(uint16_t year, uint8_t month, uint8_t day);
-        CalendarCalcs::DST is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, 
-                                               uint8_t month, uint8_t day, uint8_t utc_hour);
+        bool is_leap_year(int16_t year);
+        CalendarCalcs::DAY_OF_WEEK day_of_week(int16_t year, int8_t month, int8_t day);
+        CalendarCalcs::DST is_daylight_savings(CalendarCalcs::TIMEZONE tz, int16_t year, 
+                                               int8_t month, int8_t day, int8_t utc_hour);
         
-        bool date_is_valid(uint16_t year, uint8_t month, uint8_t day);
-        bool time_is_valid(uint8_t hour, uint8_t minute, uint8_t second);
+        bool date_is_valid(int16_t year, int8_t month, int8_t day);
+        bool time_is_valid(int8_t hour, int8_t minute, int8_t second);
 
         CalendarCalcs::CalendarCalcs_Error to_local_time(CalendarCalcs::TIMEZONE tz, CalendarCalcs::datetime *dt);
 
     private:
-        bool _month_is_valid(uint8_t month);
-        int8_t _days_in_month(uint8_t year, uint8_t month);
-        bool _day_is_valid(uint8_t year, uint8_t month, uint8_t day);
+        bool _year_is_valid(int16_t year);
+        bool _month_is_valid(int8_t month);
+        int8_t _days_in_month(int8_t year, int8_t month);
+        bool _day_is_valid(int8_t year, int8_t month, int8_t day);
 
         int8_t _utc_offset_standard(CalendarCalcs::TIMEZONE tz);
 
         void _increment_day_of_week(CalendarCalcs::DAY_OF_WEEK *dow);
 
         int8_t _ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK dok, 
-                                     uint8_t year, uint8_t month);     // ie get the 2nd Sunday of March
+                                     int8_t year, int8_t month);     // ie get the 2nd Sunday of March
 
         // number of days in a month, leap year is corrected in function call
         // const int8_t _days_in_month[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};

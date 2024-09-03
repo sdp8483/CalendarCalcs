@@ -2,7 +2,12 @@
 
 /* return true if it is a leap year ------------------------------------------ */
 /* https://learn.microsoft.com/en-us/office/troubleshoot/excel/determine-a-leap-year */
-bool CalendarCalcs::is_leap_year(uint16_t year) {
+bool CalendarCalcs::is_leap_year(int16_t year) {
+    /* verify year is not negative */
+    if (!_year_is_valid(year)) {
+        return false;
+    }
+
     /* assume it is not a leap year */
     bool leap_year = false;
 
@@ -26,7 +31,12 @@ bool CalendarCalcs::is_leap_year(uint16_t year) {
 
 /* return a number indicating the day of the week given a date --------------- */
 /* https://www.almanac.com/how-find-day-week */
-CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(uint16_t year, uint8_t month, uint8_t day) {
+CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(int16_t year, int8_t month, int8_t day) {
+    // verify year is not negative
+    if (!_year_is_valid(year)) {
+        return CalendarCalcs::DAY_OF_WEEK::DOW_ERROR_YEAR;
+    }
+
     // check validity of month
     if (!_month_is_valid(month)) {
         return CalendarCalcs::DAY_OF_WEEK::DOW_ERROR_MONTH;
@@ -98,7 +108,11 @@ CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(uint16_t year, uint8_t mon
 
 /* determine if it is daylight savings time ---------------------------------- */
 /* https://www.nist.gov/pml/time-and-frequency-division/popular-links/daylight-savings-time-dst */
-CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, uint8_t month, uint8_t day, uint8_t utc_hour) {
+CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz, int16_t year, int8_t month, int8_t day, int8_t utc_hour) {
+    if (!_year_is_valid(year)) {
+        return CalendarCalcs::DST::DST_ERROR_YEAR;
+    }
+
     if (!_month_is_valid(month)) {
         return CalendarCalcs::DST::DST_ERROR_MONTH;
     }
@@ -209,7 +223,12 @@ CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz
 }
 
 /* determine if a date is valid ---------------------------------------------- */
-bool CalendarCalcs::date_is_valid(uint16_t year, uint8_t month, uint8_t day) {
+bool CalendarCalcs::date_is_valid(int16_t year, int8_t month, int8_t day) {
+    /* is year positive */
+    if (!_year_is_valid(year)) {
+        return false;
+    }
+
     /* is the month valid, not greater then 12 */
     if (!_month_is_valid(month)) {
         return false;
@@ -224,7 +243,7 @@ bool CalendarCalcs::date_is_valid(uint16_t year, uint8_t month, uint8_t day) {
 }
 
 /* determine if a time is valid ---------------------------------------------- */
-bool CalendarCalcs::time_is_valid(uint8_t hour, uint8_t minute, uint8_t second) {
+bool CalendarCalcs::time_is_valid(int8_t hour, int8_t minute, int8_t second) {
     /* are there more then 24 hours */
     if (hour >= 24) {
         return false;
@@ -258,18 +277,65 @@ CalendarCalcs::CalendarCalcs_Error CalendarCalcs::to_local_time(CalendarCalcs::T
     /* get timezone offset */
     int8_t tz_offset = _utc_offset_standard(tz);
 
-    /* adjust for daylight savings time, add 1 hour */
-    if (is_daylight_savings(tz, dt->year, dt->month, dt->day, dt->hour)) {
+    /* adjust for daylight savings time if in effect, add 1 hour */
+    if (is_daylight_savings(tz, dt->year, dt->month, dt->day, dt->hour) == CalendarCalcs::DST::ACTIVE) {
         tz_offset += 1;
     }
 
-    
+    /* apply timezone offset */
+    dt->hour += tz_offset;
+
+    /* increment day if hour has passed 24 */
+    if (dt->hour >= 24) {
+        dt->hour -= 24;
+        dt->day++;
+    }
+
+    /* decrement day if hour is negative */
+    if (dt->hour < 0) {
+        dt->hour = 24 + dt->hour;
+        dt->day--;
+    }
+
+    /* increment month if day has passed max days */
+    if (dt->day > _days_in_month(dt->year, dt->month)) {
+        dt->month++;
+        dt->day = dt->day - _days_in_month(dt->year, dt->month);
+    }
+
+    /* decrement month if day is less then 1 */
+    if (dt->day < 1) {
+        dt->month--;
+        dt->day = _days_in_month(dt->year, dt->month) + dt->day;
+    }
+
+    /* increment year if month is greater then 12 */
+    if (dt->month > 12) {
+        dt->year++;
+        dt->month = 1;
+    }
+
+    /* decrement year if month is less then 1 */
+    if (dt->month < 1) {
+        dt->year--;
+        dt->month = 12;
+    }
 
     return CalendarCalcs::CalendarCalcs_Error::NONE;
 }
 
+/* no negative years --------------------------------------------------------- */
+bool CalendarCalcs::_year_is_valid(int16_t year) {
+    if (year <= 0) {
+        calcalc_log("Year %d is negative and not valid\r\n", year);
+        return false;
+    }
+
+    return true;
+}
+
 /* determine if the month value is valid ------------------------------------- */
-bool CalendarCalcs::_month_is_valid(uint8_t month) {
+bool CalendarCalcs::_month_is_valid(int8_t month) {
     // month value cannot be less then January
     if (month < CalendarCalcs::MONTH::JANUARY) {
         calcalc_log("Month %d is not a valid month\r\n", month);
@@ -291,7 +357,7 @@ bool CalendarCalcs::_month_is_valid(uint8_t month) {
 }
 
 /* return number of days in a month correcting for leap years ---------------- */
-int8_t CalendarCalcs::_days_in_month(uint8_t year, uint8_t month) {
+int8_t CalendarCalcs::_days_in_month(int8_t year, int8_t month) {
     switch (month) {
         case CalendarCalcs::MONTH::JANUARY:
             return 31;
@@ -352,9 +418,9 @@ int8_t CalendarCalcs::_days_in_month(uint8_t year, uint8_t month) {
 }
 
 /* determine if the day value is valid --------------------------------------- */
-bool CalendarCalcs::_day_is_valid(uint8_t year, uint8_t month, uint8_t day) {
-    // day cannot be zero
-    if (day == 0) {
+bool CalendarCalcs::_day_is_valid(int8_t year, int8_t month, int8_t day) {
+    // day cannot be less then or equal to zero
+    if (day <= 0) {
         calcalc_log("Day is zero\r\n");
 
         return false;
@@ -453,7 +519,7 @@ void CalendarCalcs::_increment_day_of_week(CalendarCalcs::DAY_OF_WEEK *dow) {
 
 /* return the date for the nth day of the week for a specific month ---------- */
 int8_t CalendarCalcs::_ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK nth_dow, 
-                                       uint8_t year, uint8_t month) {
+                                       int8_t year, int8_t month) {
     // make sure month is valid
     if (!_month_is_valid(month)) {
         return CALENDARCALCS_ERROR;
