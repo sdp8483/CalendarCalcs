@@ -115,8 +115,8 @@ class CalendarCalcs {
 
         void _increment_day_of_week(CalendarCalcs::DAY_OF_WEEK *dow);
 
-        int8_t _ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK dok, 
-                                     uint16_t year, int8_t month);     // ie get the 2nd Sunday of March
+        int8_t _ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK nth_dow, 
+                                     int16_t year, int8_t month);     // ie get the 2nd Sunday of March
 
         // used in day of the week calculations
         const int8_t _month_key[13] = {0, 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5};

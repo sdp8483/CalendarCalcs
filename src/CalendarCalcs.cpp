@@ -28,7 +28,7 @@ bool CalendarCalcs::is_leap_year(uint16_t year) {
 /* https://www.almanac.com/how-find-day-week this formula seems to only work for 2000 - 2099 */
 /* https://artofmemory.com/blog/how-to-calculate-the-day-of-the-week/ */
 CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(uint16_t year, int8_t month, int8_t day) {
-    calcalc_log("Received the following date: %d/%d/%d\r\n", month, day, year);
+    calcalc_log("DOW received the following date: %d/%d/%d\r\n", month, day, year);
 
     // check validity of month
     if (!_month_is_valid(month)) {
@@ -99,6 +99,9 @@ CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(uint16_t year, int8_t mont
 /* determine if it is daylight savings time ---------------------------------- */
 /* https://www.nist.gov/pml/time-and-frequency-division/popular-links/daylight-savings-time-dst */
 CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, int8_t month, int8_t day, int8_t utc_hour) {
+    // calcalc_log("DST Check received the following data: %d/%d/%d, %d UTC, Timezone: %d\r\n",
+    //             month, day, year, utc_hour, tz);
+
     if (!_month_is_valid(month)) {
         return CalendarCalcs::DST::DST_ERROR_MONTH;
     }
@@ -119,11 +122,14 @@ CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz
 
     // daylight savings time starts at 2am 2nd Sunday in March
     int8_t second_sunday_in_march = _ordinal_day_of_month(2, CalendarCalcs::DAY_OF_WEEK::SUNDAY, year, CalendarCalcs::MONTH::MARCH);
+    // calcalc_log("Second Sunday in March %d is %d\r\n", year, second_sunday_in_march);
     // daylight savings time ends at 2am 1st Sunday in November
     int8_t first_sunday_in_november = _ordinal_day_of_month(1, CalendarCalcs::DAY_OF_WEEK::SUNDAY, year, CalendarCalcs::MONTH::NOVEMBER);
+    // calcalc_log("First Sunday in November %d is %d\r\n", year, first_sunday_in_november);
 
     // get the local hour in standard time
-    uint8_t local_hour_stdTime = utc_hour + _utc_offset_standard(tz);
+    int8_t local_hour_stdTime = utc_hour + _utc_offset_standard(tz);
+    // calcalc_log("Local hour is %d\r\n", local_hour_stdTime);
 
     switch (month) {
         case CalendarCalcs::MONTH::JANUARY:
@@ -245,6 +251,9 @@ bool CalendarCalcs::time_is_valid(int8_t hour, int8_t minute, int8_t second) {
 
 /* convert UTC datetime to local datetime ------------------------------------ */
 CalendarCalcs::CalendarCalcs_Error CalendarCalcs::to_local_time(CalendarCalcs::TIMEZONE tz, CalendarCalcs::datetime *dt) {
+    calcalc_log("%d/%d/%d %d:%d:%d UTC\r\n", dt->month, dt->day, dt->year, dt->hour, dt->minute, dt->second);
+    calcalc_log("Timezone is %d\r\n", tz);
+
     /* make sure date is valid */
     if (!date_is_valid(dt->year, dt->month, dt->day)) {
         return CalendarCalcs::CalendarCalcs_Error::DATE_INVALID;
@@ -306,6 +315,8 @@ CalendarCalcs::CalendarCalcs_Error CalendarCalcs::to_local_time(CalendarCalcs::T
 
     /* set day of the week */
     dt->day_of_week = day_of_week(dt->year, dt->month, dt->day);
+
+    calcalc_log("Local Time %d/%d/%d DOW:%d %d:%d:%d\r\n", dt->month, dt->day, dt->year, dt->day_of_week, dt->hour, dt->minute, dt->second);
 
     return CalendarCalcs::CalendarCalcs_Error::NONE;
 }
@@ -495,7 +506,7 @@ void CalendarCalcs::_increment_day_of_week(CalendarCalcs::DAY_OF_WEEK *dow) {
 
 /* return the date for the nth day of the week for a specific month ---------- */
 int8_t CalendarCalcs::_ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK nth_dow, 
-                                            uint16_t year, int8_t month) {
+                                            int16_t year, int8_t month) {    
     // make sure month is valid
     if (!_month_is_valid(month)) {
         return CALENDARCALCS_ERROR;
@@ -516,7 +527,7 @@ int8_t CalendarCalcs::_ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_W
         // check if we have found the nth day of the week
         if (ordinal == nth) {
             if (current_day_of_week == nth_dow) {
-                return current_day_of_week;
+                return i;
             }
         }
 

@@ -25,8 +25,8 @@ void DaylightSavingsTest(CalendarCalcs::TIMEZONE tz, uint16_t year,
 void DateIsValidTest(uint16_t year, int8_t month, int8_t day, bool expected_result);
 void TimeIsValidTest(int8_t hour, int8_t minute, int8_t second, bool expected_result);
 void LocalTimeTest(CalendarCalcs::TIMEZONE tz,
-                   CalendarCalcs::datetime utc_time, 
-                   CalendarCalcs::datetime expected_result);
+                   CalendarCalcs::datetime *utc_time, 
+                   CalendarCalcs::datetime *expected_result);
 
 int main(int argc, char *argv[]) {
     /* Leap Year Tests ------------------------------------------------------- */
@@ -167,10 +167,10 @@ int main(int argc, char *argv[]) {
             .hour = 13,
             .minute = 40,
             .second = 37,
-            .day_of_week = 5
+            .day_of_week = CalendarCalcs::DAY_OF_WEEK::THURSDAY
         };
 
-        LocalTimeTest(CalendarCalcs::TIMEZONE::EST, utc_1, edt_1);
+        LocalTimeTest(CalendarCalcs::TIMEZONE::EST, &utc_1, &edt_1);
     }
 
     /* September 1, 2024 3:40:37 to EDT, roll back month */
@@ -192,10 +192,10 @@ int main(int argc, char *argv[]) {
             .hour = 23,
             .minute = 40,
             .second = 37,
-            .day_of_week = 7
+            .day_of_week = CalendarCalcs::DAY_OF_WEEK::SATURDAY
         };
 
-        LocalTimeTest(CalendarCalcs::TIMEZONE::EST, utc_2, edt_2);
+        LocalTimeTest(CalendarCalcs::TIMEZONE::EST, &utc_2, &edt_2);
     }
 
     /* January 1, 2025 3:40:37 to EDT, roll back year */
@@ -217,9 +217,9 @@ int main(int argc, char *argv[]) {
             .hour = 22,
             .minute = 40,
             .second = 37,
-            .day_of_week = 3
+            .day_of_week = CalendarCalcs::DAY_OF_WEEK::TUESDAY
         };
 
-        LocalTimeTest(CalendarCalcs::TIMEZONE::EST, utc_3, edt_3);
+        LocalTimeTest(CalendarCalcs::TIMEZONE::EST, &utc_3, &edt_3);
     }
 }

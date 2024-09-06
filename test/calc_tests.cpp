@@ -46,36 +46,43 @@ void TimeIsValidTest(int8_t hour, int8_t minute, int8_t second, bool expected_re
 
 /* Perform Local Time Validation Test on specified time and timezone */
 void LocalTimeTest(CalendarCalcs::TIMEZONE tz,
-                   CalendarCalcs::datetime utc_time, 
-                   CalendarCalcs::datetime expected_result) {
+                   CalendarCalcs::datetime *utc_time, 
+                   CalendarCalcs::datetime *expected_result) {
     
-    ccalcs.to_local_time(tz, &utc_time);
+    ccalcs.to_local_time(tz, utc_time);
 
-    if (expected_result.year != utc_time.year) {
+    if (expected_result->year != utc_time->year) {
+        printf("expected year %d != %d\r\n", expected_result->year, utc_time->year);
         std::exit(1);
     }
 
-    if (expected_result.month != utc_time.month) {
+    if (expected_result->month != utc_time->month) {
+        printf("expected month %d != %d\r\n", expected_result->month, utc_time->month);
         std::exit(1);
     }
 
-    if (expected_result.day != utc_time.day) {
+    if (expected_result->day != utc_time->day) {
+        printf("expected day %d != %d\r\n", expected_result->day, utc_time->day);
         std::exit(1);
     }
 
-    if (expected_result.hour != utc_time.hour) {
+    if (expected_result->hour != utc_time->hour) {
+        printf("expected hour %d != %d\r\n", expected_result->hour, utc_time->hour);
         std::exit(1);
     }
 
-    if (expected_result.minute != utc_time.minute) {
+    if (expected_result->minute != utc_time->minute) {
+        printf("expected minute %d != %d\r\n", expected_result->minute, utc_time->minute);
         std::exit(1);
     }
 
-    if (expected_result.second != utc_time.second) {
+    if (expected_result->second != utc_time->second) {
+        printf("expected second %d != %d\r\n", expected_result->second, utc_time->second);
         std::exit(1);
     }
 
-    if (expected_result.day_of_week != utc_time.day_of_week) {
+    if (expected_result->day_of_week != utc_time->day_of_week) {
+        printf("expected day of week %d != %d\r\n", expected_result->day_of_week, utc_time->day_of_week);
         std::exit(1);
     }
 }
