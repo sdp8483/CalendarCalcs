@@ -38,3 +38,8 @@ add_test(NAME Time_8:14:54_Is_Valid         COMMAND unit_tests 20)
 add_test(NAME Time_Hour_Is_Not_Valid        COMMAND unit_tests 21)
 add_test(NAME Time_Minute_Is_Not_Valid      COMMAND unit_tests 22)
 add_test(NAME Time_Second_Is_Not_Valid      COMMAND unit_tests 23)
+
+# Local Time Conversion Tests
+add_test(NAME LocalTime_UTC_9_5_2024_17:40  COMMAND unit_tests 24)
+add_test(NAME LocalTime_Month_RollBack      COMMAND unit_tests 25)  # conversion to local time causes month to decrement
+add_test(NAME LocalTime_Year_RollBack       COMMAND unit_tests 26)  # conversion to local time causes year and month to decrement
