@@ -2,12 +2,7 @@
 
 /* return true if it is a leap year ------------------------------------------ */
 /* https://learn.microsoft.com/en-us/office/troubleshoot/excel/determine-a-leap-year */
-bool CalendarCalcs::is_leap_year(int16_t year) {
-    /* verify year is not negative */
-    if (!_year_is_valid(year)) {
-        return false;
-    }
-
+bool CalendarCalcs::is_leap_year(uint16_t year) {
     /* assume it is not a leap year */
     bool leap_year = false;
 
@@ -30,12 +25,10 @@ bool CalendarCalcs::is_leap_year(int16_t year) {
 }
 
 /* return a number indicating the day of the week given a date --------------- */
-/* https://www.almanac.com/how-find-day-week */
-CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(int16_t year, int8_t month, int8_t day) {
-    // verify year is not negative
-    if (!_year_is_valid(year)) {
-        return CalendarCalcs::DAY_OF_WEEK::DOW_ERROR_YEAR;
-    }
+/* https://www.almanac.com/how-find-day-week this formula seems to only work for 2000 - 2099 */
+/* https://artofmemory.com/blog/how-to-calculate-the-day-of-the-week/ */
+CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(uint16_t year, int8_t month, int8_t day) {
+    calcalc_log("Received the following date: %d/%d/%d\r\n", month, day, year);
 
     // check validity of month
     if (!_month_is_valid(month)) {
@@ -47,56 +40,53 @@ CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(int16_t year, int8_t month
         return CalendarCalcs::DAY_OF_WEEK::DOW_ERROR_DAY;
     }
 
-    // Does not work on dates before 1753
-    if (year <= 1753) {
-        return CalendarCalcs::DAY_OF_WEEK::DOW_ERROR_YEAR;
-    }
+    // calculate year code = (YY + (YY / 4)) mod 7
+    uint16_t yy = year % 100;                   // get last two digits of the year
+    uint16_t year_code = (yy + (yy / 4)) % 7;   // sum yy and quotient of yy/4 then mod 7
 
-    // get the last two digits in year
-    uint8_t year_end_digits = year % 100;
+    // find month code
+    uint16_t month_code = _month_key[month];
 
-    // quarter of those two digits, discard remainder
-    uint8_t quarter_year_digits = (uint8_t)(year_end_digits / 4);
+    // find century code, it is a repeating pattern starring at century 0 of 4 numbers
+    uint8_t century = year / 100;
+    int8_t century_code = _century_key[century % 4];
 
-    // add numbers together along with month key and day
-    uint16_t sum = year_end_digits + quarter_year_digits + day + _month_key[month];
+    // calculate sum
+    uint16_t sum = year_code + month_code + century_code + day;
 
-    // month keys are offset if it is a leap year for january and february
+    // adjust for leap years if month is jan or feb
     if (is_leap_year(year) && (month <= CalendarCalcs::MONTH::FEBRUARY)) {
-        sum += _month_key_leap_year_offset;
+        sum -= 1;
     }
-
-    // if the year is between 2000 and 2099 then subtract 1
-    sum -= 1;
 
     uint8_t dow = sum % 7;
 
     switch (dow) {
-        case 1:
+        case 0:
             return CalendarCalcs::DAY_OF_WEEK::SUNDAY;
             break;
     
-        case 2:
+        case 1:
             return CalendarCalcs::DAY_OF_WEEK::MONDAY;
             break;
         
-        case 3:
+        case 2:
             return CalendarCalcs::DAY_OF_WEEK::TUESDAY;
             break;
     
-        case 4:
+        case 3:
             return CalendarCalcs::DAY_OF_WEEK::WEDNESDAY;
             break;
 
-        case 5:
+        case 4:
             return CalendarCalcs::DAY_OF_WEEK::THURSDAY;
             break;
     
-        case 6:
+        case 5:
             return CalendarCalcs::DAY_OF_WEEK::FRIDAY;
             break;
         
-        case 7:
+        case 6:
             return CalendarCalcs::DAY_OF_WEEK::SATURDAY;
             break;
 
@@ -108,11 +98,7 @@ CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(int16_t year, int8_t month
 
 /* determine if it is daylight savings time ---------------------------------- */
 /* https://www.nist.gov/pml/time-and-frequency-division/popular-links/daylight-savings-time-dst */
-CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz, int16_t year, int8_t month, int8_t day, int8_t utc_hour) {
-    if (!_year_is_valid(year)) {
-        return CalendarCalcs::DST::DST_ERROR_YEAR;
-    }
-
+CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, int8_t month, int8_t day, int8_t utc_hour) {
     if (!_month_is_valid(month)) {
         return CalendarCalcs::DST::DST_ERROR_MONTH;
     }
@@ -223,12 +209,7 @@ CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz
 }
 
 /* determine if a date is valid ---------------------------------------------- */
-bool CalendarCalcs::date_is_valid(int16_t year, int8_t month, int8_t day) {
-    /* is year positive */
-    if (!_year_is_valid(year)) {
-        return false;
-    }
-
+bool CalendarCalcs::date_is_valid(uint16_t year, int8_t month, int8_t day) {
     /* is the month valid, not greater then 12 */
     if (!_month_is_valid(month)) {
         return false;
@@ -293,45 +274,40 @@ CalendarCalcs::CalendarCalcs_Error CalendarCalcs::to_local_time(CalendarCalcs::T
 
     /* decrement day if hour is negative */
     if (dt->hour < 0) {
-        dt->hour = 24 + dt->hour;
+        dt->hour += 24;
         dt->day--;
     }
 
     /* increment month if day has passed max days */
     if (dt->day > _days_in_month(dt->year, dt->month)) {
         dt->month++;
-        dt->day = dt->day - _days_in_month(dt->year, dt->month);
+        dt->day -= _days_in_month(dt->year, dt->month);
     }
 
     /* decrement month if day is less then 1 */
     if (dt->day < 1) {
         dt->month--;
-        dt->day = _days_in_month(dt->year, dt->month) + dt->day;
+        dt->day += _days_in_month(dt->year, dt->month);
     }
 
     /* increment year if month is greater then 12 */
     if (dt->month > 12) {
         dt->year++;
         dt->month = 1;
+        dt->day = 1;
     }
 
     /* decrement year if month is less then 1 */
     if (dt->month < 1) {
         dt->year--;
         dt->month = 12;
+        dt->day = _days_in_month(dt->year, dt->month);
     }
+
+    /* set day of the week */
+    dt->day_of_week = day_of_week(dt->year, dt->month, dt->day);
 
     return CalendarCalcs::CalendarCalcs_Error::NONE;
-}
-
-/* no negative years --------------------------------------------------------- */
-bool CalendarCalcs::_year_is_valid(int16_t year) {
-    if (year <= 0) {
-        calcalc_log("Year %d is negative and not valid\r\n", year);
-        return false;
-    }
-
-    return true;
 }
 
 /* determine if the month value is valid ------------------------------------- */
@@ -357,7 +333,7 @@ bool CalendarCalcs::_month_is_valid(int8_t month) {
 }
 
 /* return number of days in a month correcting for leap years ---------------- */
-int8_t CalendarCalcs::_days_in_month(int8_t year, int8_t month) {
+int8_t CalendarCalcs::_days_in_month(uint16_t year, int8_t month) {
     switch (month) {
         case CalendarCalcs::MONTH::JANUARY:
             return 31;
@@ -418,7 +394,7 @@ int8_t CalendarCalcs::_days_in_month(int8_t year, int8_t month) {
 }
 
 /* determine if the day value is valid --------------------------------------- */
-bool CalendarCalcs::_day_is_valid(int8_t year, int8_t month, int8_t day) {
+bool CalendarCalcs::_day_is_valid(uint16_t year, int8_t month, int8_t day) {
     // day cannot be less then or equal to zero
     if (day <= 0) {
         calcalc_log("Day is zero\r\n");
@@ -519,7 +495,7 @@ void CalendarCalcs::_increment_day_of_week(CalendarCalcs::DAY_OF_WEEK *dow) {
 
 /* return the date for the nth day of the week for a specific month ---------- */
 int8_t CalendarCalcs::_ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK nth_dow, 
-                                       int8_t year, int8_t month) {
+                                            uint16_t year, int8_t month) {
     // make sure month is valid
     if (!_month_is_valid(month)) {
         return CALENDARCALCS_ERROR;

@@ -95,35 +95,32 @@ class CalendarCalcs {
             TIME_INVALID,
         };
 
-        bool is_leap_year(int16_t year);
-        CalendarCalcs::DAY_OF_WEEK day_of_week(int16_t year, int8_t month, int8_t day);
-        CalendarCalcs::DST is_daylight_savings(CalendarCalcs::TIMEZONE tz, int16_t year, 
+        bool is_leap_year(uint16_t year);
+        CalendarCalcs::DAY_OF_WEEK day_of_week(uint16_t year, int8_t month, int8_t day);
+        CalendarCalcs::DST is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, 
                                                int8_t month, int8_t day, int8_t utc_hour);
         
-        bool date_is_valid(int16_t year, int8_t month, int8_t day);
+        bool date_is_valid(uint16_t year, int8_t month, int8_t day);
         bool time_is_valid(int8_t hour, int8_t minute, int8_t second);
 
         CalendarCalcs::CalendarCalcs_Error to_local_time(CalendarCalcs::TIMEZONE tz, CalendarCalcs::datetime *dt);
 
     private:
-        bool _year_is_valid(int16_t year);
+        // bool _year_is_valid(int16_t year);
         bool _month_is_valid(int8_t month);
-        int8_t _days_in_month(int8_t year, int8_t month);
-        bool _day_is_valid(int8_t year, int8_t month, int8_t day);
+        int8_t _days_in_month(uint16_t year, int8_t month);
+        bool _day_is_valid(uint16_t year, int8_t month, int8_t day);
 
         int8_t _utc_offset_standard(CalendarCalcs::TIMEZONE tz);
 
         void _increment_day_of_week(CalendarCalcs::DAY_OF_WEEK *dow);
 
         int8_t _ordinal_day_of_month(uint8_t nth, CalendarCalcs::DAY_OF_WEEK dok, 
-                                     int8_t year, int8_t month);     // ie get the 2nd Sunday of March
-
-        // number of days in a month, leap year is corrected in function call
-        // const int8_t _days_in_month[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+                                     uint16_t year, int8_t month);     // ie get the 2nd Sunday of March
 
         // used in day of the week calculations
-        const int8_t _month_key[13] = {0, 1, 4, 4, 0, 2, 5, 0, 3, 6, 1, 4, 6};
-        const int8_t _month_key_leap_year_offset = -1;
+        const int8_t _month_key[13] = {0, 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5};
+        const int8_t _century_key[4] = {6, 4, 2, 0};
 
         // UTC offset by timezone for standard time
         const int8_t _est_utc_offset    = -5;
