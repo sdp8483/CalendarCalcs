@@ -30,14 +30,14 @@
 /* Class --------------------------------------------------------------------- */
 class CalendarCalcs {
     public:
-        struct datetime {
+        struct datetime {               /* same structure as RP2040 datetime_t */
             int16_t year;
-            int8_t month;
-            int8_t day;
-            int8_t hour;
-            int8_t minute;
-            int8_t second;
-            int8_t day_of_week;
+            int8_t month;               /* 1 to 12, 1 is January */
+            int8_t day;                 /* 1 to 31, depends on month */
+            int8_t day_of_week;         /* 0 to 6, 0 is Sunday */
+            int8_t hour;                /* 0 to 23 */
+            int8_t minute;              /* 0 to 59 */
+            int8_t second;              /* 0 to 59 */
         };
 
         enum TIMEZONE {
