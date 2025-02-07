@@ -97,7 +97,7 @@ CalendarCalcs::DAY_OF_WEEK CalendarCalcs::day_of_week(uint16_t year, int8_t mont
 }
 
 /* determine if it is daylight savings time ---------------------------------- */
-/* https://www.nist.gov/pml/time-and-frequency-division/popular-links/daylight-savings-time-dst */
+/* https://www.nist.gov/pml/time-and-frequency-division/popular-links/daylight-saving-time-dst */
 CalendarCalcs::DST CalendarCalcs::is_daylight_savings(CalendarCalcs::TIMEZONE tz, uint16_t year, int8_t month, int8_t day, int8_t utc_hour) {
     // calcalc_log("DST Check received the following data: %d/%d/%d, %d UTC, Timezone: %d\r\n",
     //             month, day, year, utc_hour, tz);
